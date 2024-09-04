@@ -1,11 +1,31 @@
-# 🏗 Scaffold-ETH 2
+# Web3 Survey Application
 
-<h4 align="center">
-  <a href="https://docs.scaffoldeth.io">Documentation</a> |
-  <a href="https://scaffoldeth.io">Website</a>
-</h4>
+Welcome to the Web3 Survey Application! This project is a decentralized survey platform built using Next.js, Tailwind CSS, and Scaffold-ETH. It allows users to participate in surveys and provides an easy way to manage and display survey results.
 
-🧪 An open-source, up-to-date toolkit for building decentralized applications (dapps) on the Ethereum blockchain. It's designed to make it easier for developers to create and deploy smart contracts and build user interfaces that interact with those contracts.
+## Features
+
+- **Survey Creation**: Admins can add new survey questions with multiple choice answers.
+- **Survey Participation**: Users can submit their answers and receive rewards.
+- **Results Display**: View survey results in a visually appealing progress bar format.
+- **Blacklisting**: Users who provide incorrect or inconsistent answers can be blacklisted.
+
+## Technologies Used
+
+- **Next.js**: A React framework for server-side rendering and static site generation.
+- **Tailwind CSS**: A utility-first CSS framework for styling.
+- **Scaffold-ETH**: A development environment for building Ethereum dApps.
+- **Solidity**: A programming language for writing smart contracts on Ethereum.
+
+## Getting Started
+
+To get started with the Web3 Survey Application, follow these steps:
+
+### Prerequisites
+
+- Node.js and npm/yarn
+- MetaMask or another Ethereum wallet
+- An Ethereum testnet or local blockchain (e.g., Ganache)
+
 
 ⚙️ Built using NextJS, RainbowKit, Hardhat, Wagmi, Viem, and Typescript.
 
@@ -32,7 +52,7 @@ To get started with Scaffold-ETH 2, follow the steps below:
 1. Install dependencies if it was skipped in CLI:
 
 ```
-cd my-dapp-example
+cd web3survey
 yarn install
 ```
 
