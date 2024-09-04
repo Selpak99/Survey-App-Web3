@@ -1,87 +1,77 @@
 //SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0 <0.9.0;
 
-// Useful for debugging. Remove when deploying to a live network.
-import "hardhat/console.sol";
 
-// Use openzeppelin to inherit battle-tested implementations (ERC20, ERC721, etc)
-// import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-/**
- * A smart contract that allows changing a state variable of the contract and tracking the changes
- * It also allows the owner to withdraw the Ether in the contract
- * @author BuidlGuidl
- */
-contract YourContract {
-	// State Variables
-	address public immutable owner;
-	string public greeting = "Building Unstoppable Apps!!!";
-	bool public premium = false;
-	uint256 public totalCounter = 0;
-	mapping(address => uint) public userGreetingCounter;
+contract YourContract is Ownable{
 
-	// Events: a way to emit log statements from smart contract that can be listened to by external parties
-	event GreetingChange(
-		address indexed greetingSetter,
-		string newGreeting,
-		bool premium,
-		uint256 value
-	);
+	uint256 public PRIZE = 0.001 * 10**18;
 
-	// Constructor: Called once on contract deployment
-	// Check packages/hardhat/deploy/00_deploy_your_contract.ts
-	constructor(address _owner) {
-		owner = _owner;
+	uint256 private qId; //make private
+
+	constructor() payable{}
+	
+
+	mapping(uint256 => mapping(uint256 => uint256)) public responses;
+
+	mapping (address => bool) isAnswered;
+
+	mapping (address => bool) isBlackListed;
+
+	event QuestionAdded(uint256 indexed qId,string questions,string answer1,string answer2);
+	
+
+	function addQuestion(string memory questionText,string memory answer1,string memory answer2) public onlyOwner {
+		
+		emit QuestionAdded(qId,questionText,answer1,answer2);
+		qId++;
 	}
 
-	// Modifier: used to define a set of rules that must be met before or after a function is executed
-	// Check the withdraw() function
-	modifier isOwner() {
-		// msg.sender: predefined variable that represents address of the account that called the current function
-		require(msg.sender == owner, "Not the Owner");
-		_;
-	}
+	function addAnswer(uint256[] memory answers) public {
+        require(answers.length == qId, "Answers length mismatch");
+		require(isAnswered[msg.sender] == false,"You have already send it!");
+		require(isBlackListed[msg.sender] == false,"You are blacklisted");
 
-	/**
-	 * Function that allows anyone to change the state variable "greeting" of the contract and increase the counters
-	 *
-	 * @param _newGreeting (string memory) - new greeting to save on the contract
-	 */
-	function setGreeting(string memory _newGreeting) public payable {
-		// Print data to the hardhat chain console. Remove when deploying to a live network.
-		console.log(
-			"Setting new greeting '%s' from %s",
-			_newGreeting,
-			msg.sender
-		);
-
-		// Change state variables
-		greeting = _newGreeting;
-		totalCounter += 1;
-		userGreetingCounter[msg.sender] += 1;
-
-		// msg.value: built-in global variable that represents the amount of ether sent with the transaction
-		if (msg.value > 0) {
-			premium = true;
-		} else {
-			premium = false;
+		if (answers[0] == 0) {
+			addBlacklist(msg.sender);
+			require(isBlackListed[msg.sender] == false,"You are blacklisted");
 		}
 
-		// emit: keyword used to trigger an event
-		emit GreetingChange(msg.sender, _newGreeting, msg.value > 0, msg.value);
+        for (uint256 i = 0; i < answers.length; i++) {
+            uint256 answer = answers[i];
+            require(answer == 0 || answer == 1, "Invalid answer");
+
+            responses[i][answer]++;
+        }
+		isAnswered[msg.sender] = true;
+
+		sendPrize(payable(msg.sender));
+		
+    }
+
+	function getResponses(uint256 questionId) public view returns (uint256 answer1Count, uint256 answer2Count) {
+        return (responses[questionId][0], responses[questionId][1]);
+    }
+
+	function addBlacklist(address suspect) private {
+		isBlackListed[suspect] = true;
 	}
 
-	/**
-	 * Function that allows the owner to withdraw all the Ether in the contract
-	 * The function can only be called by the owner of the contract as defined by the isOwner modifier
-	 */
-	function withdraw() public isOwner {
-		(bool success, ) = owner.call{ value: address(this).balance }("");
-		require(success, "Failed to send Ether");
-	}
+	function sendPrize(address payable _to) private {
+        // Call returns a boolean value indicating success or failure.
+        // This is the current recommended method to use.
+        (bool sent,) = _to.call{value: PRIZE}("");
+        require(sent, "Failed to send Ether");
+    }
+	
 
-	/**
-	 * Function that allows the contract to receive ETH
-	 */
+	
+    
+
+    
+
+	
 	receive() external payable {}
+	fallback() external payable{}
 }
